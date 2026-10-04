@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LA SINTONIA OCULTA</title>
+
+  <!-- Modal de Inicio / Código Premium -->
+  <div id="modal-inicio" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Bienvenido a La Sintonia Oculta</h2>
+      <p>Ingresa un Código Premium si tienes uno, o presiona jugar para comenzar.</p>
+
+      <input type="text" id="input-codigo" placeholder="" style="text-transform: uppercase;">
+      <p id="mensaje-error" class="error-text" style="display: none;">Código incorrecto. Inténtalo de nuevo.</p>
+
+      <div class="botones-container">
+        <button id="btn-ingresar-codigo">Ingresar con Código</button>
+        <button id="btn-jugar-normal" onclick="iniciarJuegoNormal()">Jugar sin Código</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Librería Principal Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- 2. Cargador GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <!-- 3. Lógica del juego -->
+  <script src="game.js" defer></script>
+
+  <style>
+    /* 1. CARGA DE LA FUENTE BEHIND THE NINETIES MEDIUM */
+    @font-face {
+      font-family: 'Behind The Nineties';
+      src: url('/fuente/behind-the-nineties/Behind-The-Nineties-Md.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* Bloquea la selección de texto en toda la página por defecto */
+    * {
+      -webkit-user-select: none;
+      /* Safari / Chrome antiguo */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      /* IE / Edge */
+      user-select: none;
+      /* Estándar */
+    }
+
+    /* Habilita la selección y edición en los campos donde se ingresa texto */
+    input,
+    textarea,
+    select {
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+      -ms-user-select: text !important;
+      user-select: text !important;
+    }
+
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Behind The Nineties', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #151515;
+      user-select: none;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Evita que Android capture los gestos de scroll/zoom sobre el juego */
+    canvas {
+      touch-action: none !important;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* ESTILO BASE PARA LOS RECUADROS DECORADOS */
+    .recuadro-mistico {
+      color: #7C9FD7;
+      background: rgba(15, 15, 20, 0.8);
+      border: 2px solid #671A32;
+      outline: 1px solid #779de9;
+      outline-offset: 4px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(103, 26, 50, 0.8), inset 0 0 10px rgba(12, 11, 10, 0.2);
+    }
+
+    /* TÍTULO PRINCIPAL (ARRIBA AL MEDIO) - ADAPTABLE */
+    #titulo-juego {
+      position: absolute;
+      top: 2vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      padding: 0.5vh 2vw;
+      text-align: center;
+      letter-spacing: 0.2vw;
+      text-transform: uppercase;
+      font-weight: 500;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: #ffffff;
+      background: rgba(18, 12, 28, 0.55);
+      border: 3px solid transparent;
+      border-image: linear-gradient(90deg, #671A32, #7C9FD7, hwb(60 100% 0%)) 1;
+      outline: none;
+      box-shadow: none;
+      pointer-events: none;
+      max-width: 90vw;
+      white-space: nowrap;
+    }
+
+    /* RECUADRO TUTORIAL - ALAV (RESPONSIVO Y ESTILIZADO) */
+    #tutorial-box {
+      position: absolute;
+      top: 3vh;
+      left: 2vw;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      width: fit-content;
+      min-width: 220px;
+      max-width: 420px;
+      padding: 12px 18px;
+      background: rgba(18, 12, 28, 0.85);
+      border: 2px solid transparent;
+      border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor: pointer;
+      pointer-events: auto !important;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      max-height: 300px;
+      box-sizing: border-box;
+    }
+
+    /* CABECERA (AVATAR + NOMBRE + FLECHA) */
+    .tutorial-cabecera {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    /* IMAGEN DE ALAV */
+    #alav-avatar {
+      width: clamp(38px, 4vw, 48px);
+      height: clamp(38px, 4vw, 48px);
+      object-fit: contain;
+      flex-shrink: 0;
+      background: rgba(18, 12, 28, 0.8);
+      border: 2px solid #00d2ff;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+      margin-top: -4px;
+      /* Cambia este valor para subir (-) o bajar (+) */
+      margin-left: 2px;
+    }
+
+    .tutorial-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .alav-nombre {
+      font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+      font-weight: 500;
+      color: #00d2ff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin: 0;
+    }
+
+    .indicador-flecha {
+      margin-left: 12px;
+      font-size: 0.9rem;
+      color: #00d2ff;
+      transition: transform 0.3s ease;
+    }
+
+    .tutorial-cuerpo {
+      margin-top: 10px;
+      transition: opacity 0.25s ease;
+      opacity: 1;
+    }
+
+    .alav-texto {
+      font-size: clamp(0.85rem, 1.1vw, 1rem);
+      color: #e0e0e0;
+      margin: 0;
+      line-height: 1.35;
+      letter-spacing: 0.8px;
+    }
+
+    .alav-texto strong {
+      color: #ffffff;
+    }
+
+    /* ESTADO COLAPSADO EN DESKTOP (ELEGANTE Y RECTANGULAR) */
+    #tutorial-box.colapsado {
+      max-height: 64px !important;
+      padding: 8px 16px !important;
+    }
+
+    #tutorial-box.colapsado .alav-texto,
+    #tutorial-box.colapsado .tutorial-cuerpo {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #tutorial-box.colapsado .indicador-flecha {
+      transform: rotate(-90deg);
+      color: #00d2ff;
+    }
+
+    /* CONTADOR Y BOTÓN (ABAJO A LA DERECHA) */
+    #ui {
+      position: absolute;
+      bottom: 3vh;
+      right: 2vw;
+      z-index: 10;
+      padding: 1.5vh 2vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1vh;
+      background: rgba(18, 12, 28, 0.7);
+      border: 2px solid transparent;
+      border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    #ui p {
+      margin: 0;
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      color: #00d2ff;
+    }
+
+    #ui p span {
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    /* ESTILO NEÓN EN TODOS LOS BOTONES */
+    #reiniciar,
+    #reiniciar-final,
+    button#reiniciar,
+    .btn-estilo-juego {
+      background: rgba(15, 15, 20, 0.9) !important;
+      color: #00d2ff !important;
+      border: 2px solid #00d2ff !important;
+      padding: 1vh 2vw !important;
+      font-family: 'Behind The Nineties', 'Segoe UI', sans-serif !important;
+      font-size: clamp(0.85rem, 1.1vw, 1rem) !important;
+      font-weight: bold !important;
+      text-transform: uppercase !important;
+      letter-spacing: 2px !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      outline: none !important;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.4), inset 0 0 8px rgba(0, 210, 255, 0.2) !important;
+      transition: all 0.25s ease-in-out !important;
+    }
+
+    #reiniciar:hover,
+    #reiniciar-final:hover,
+    button#reiniciar:hover,
+    .btn-estilo-juego:hover {
+      background: #00d2ff !important;
+      color: #0d0d12 !important;
+      box-shadow: 0 0 22px rgba(0, 210, 255, 0.9) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* PANTALLA COMPLETA DE VICTORIA */
+    #pantalla-victoria {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    #pantalla-victoria.activa {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* RECUADRO DENTRO DE LA VICTORIA */
+    #cuadro-victoria {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2vh;
+      max-width: min(580px, 90vw);
+      padding: 3vh 2.5vw;
+      background: rgba(18, 12, 28, 0.9);
+      border: 2px solid transparent;
+      border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+      box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+    }
+
+    .victoria-encabezado {
+      display: flex;
+      align-items: center;
+      gap: 2vw;
+    }
+
+    #alav-victoria-avatar {
+      width: clamp(80px, 10vw, 130px);
+      height: auto;
+      max-height: 130px;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: rgba(18, 12, 28, 0.8);
+      border: 2px solid #00d2ff;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+    }
+
+    .victoria-texto-grupo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* RECOMPENSA Y BOTÓN */
+    .contenedor-recompensa {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2vw;
+      margin-top: 1vh;
+      flex-wrap: wrap;
+    }
+
+    #imagen-pista {
+      max-width: clamp(150px, 25vw, 240px);
+      height: auto;
+      border: 2px solid #7C9FD7;
+      box-shadow: 0 0 15px rgba(124, 159, 215, 0.4);
+      background: rgba(15, 15, 20, 0.8);
+      padding: 6px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: #1a1a24;
+      color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      border: 1px solid #33334d;
+    }
+
+    .modal-card input {
+      width: 80%;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #0d0d12;
+      color: #fff;
+      text-align: center;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+    }
+
+    .botones-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #btn-ingresar-codigo {
+      background: #6c5ce7;
+      color: #fff;
+    }
+
+    #btn-jugar-normal {
+      background: #444;
+      color: #ccc;
+    }
+
+    .error-text {
+      color: #ff7675;
+      font-size: 0.9rem;
+    }
+
+    .codigo-grande {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-align: center;
+      color: #111;
+      margin: 2rem 0;
+    }
+
+    /* ==========================================
+   ADAPTACIÓN PARA DISPOSITIVOS MÓVILES (MOBILE)
+   ========================================== */
+    @media (max-width: 768px) {
+
+      /* Título superior */
+      #titulo-juego {
+        font-size: 1.2rem;
+        top: 1vh;
+        padding: 4px 10px;
+        letter-spacing: 1px;
+      }
+
+      /* Recuadro Tutorial Alav (Mobile) */
+      #tutorial-box {
+        top: 10vh;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 80vw;
+        width: 80vw;
+        padding: 6px 10px;
+        box-sizing: border-box;
+        cursor: pointer;
+        overflow: hidden;
+        transition: max-height 0.35s ease, padding 0.35s ease;
+        max-height: 220px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Fila superior siempre visible con Avatar, ALAV y Flecha */
+      .tutorial-cabecera {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .indicador-flecha {
+        margin-left: auto;
+        font-size: 0.8rem;
+        color: #00d2ff;
+        transition: transform 0.3s ease;
+      }
+
+      /* Cuerpo del texto */
+      .tutorial-cuerpo {
+        margin-top: 6px;
+        transition: opacity 0.25s ease;
+        opacity: 1;
+      }
+
+      /* ESTADO COLAPSADO EN MOBILE */
+      #tutorial-box.colapsado {
+        max-height: 52px !important;
+        padding: 6px 10px !important;
+      }
+
+      #alav-avatar {
+        width: 28px;
+        height: 28px;
+        max-height: 28px;
+      }
+
+      .alav-nombre {
+        font-size: 0.85rem;
+        margin: 0;
+      }
+
+      .alav-texto {
+        font-size: 0.7rem;
+        line-height: 1.2;
+        letter-spacing: 0.4px;
+      }
+
+      /* Recuadro UI / Contador (Abajo) */
+      #ui {
+        bottom: 2vh;
+        right: 50%;
+        transform: translateX(50%);
+        width: 85vw;
+        max-width: 320px;
+        padding: 10px 16px;
+        gap: 8px;
+        box-sizing: border-box;
+      }
+
+      #ui p {
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+      }
+
+      #reiniciar,
+      #reiniciar-final,
+      button#reiniciar,
+      .btn-estilo-juego {
+        padding: 8px 18px !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 1px !important;
+      }
+
+      /* Modales y Pantalla de Victoria */
+      .modal-card,
+      #cuadro-victoria {
+        width: 90vw;
+        max-width: 340px;
+        padding: 20px 15px;
+        gap: 12px;
+      }
+
+      .victoria-encabezado {
+        gap: 10px;
+      }
+
+      #alav-victoria-avatar {
+        width: 55px;
+        height: 55px;
+      }
+
+      #imagen-pista {
+        max-width: 180px;
+      }
+
+      #codigo-recompensa {
+        font-size: 1.8rem !important;
+        padding: 6px 12px !important;
+        letter-spacing: 2px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- RECUADRO DEL TUTORIAL / ALAV -->
+  <div id="tutorial-box">
+    <div class="tutorial-cabecera">
+      <img src="imagenes/avad.png" alt="Alav" id="alav-avatar" />
+      <span class="alav-nombre">Alav</span>
+      <span class="indicador-flecha">▼</span>
+    </div>
+    <div class="tutorial-cuerpo">
+      <p class="alav-texto">
+        ¡Saludos! Soy Alav, un joven Alaryum de las montañas. Para restaurar la <strong>Sintonía Oculta</strong>,
+        arrastra cada fragmento al círculo central guiándote por el color de su energía.
+      </p>
+    </div>
+  </div>
+
+  <!-- TÍTULO EN EL MEDIO SUPERIOR -->
+  <div id="titulo-juego">
+    La sintonía oculta
+  </div>
+
+  <!-- RECUADRO UI: CONTADOR Y BOTÓN DE REINICIO -->
+  <div id="ui">
+    <p>Amuletos completados: <span id="contador-amuletos">0</span> / 2</p>
+    <button id="reiniciar">REINICIAR</button>
+  </div>
+
+  <!-- PANORAMA Y MENSAJE DE VICTORIA COMPLETO -->
+  <div id="pantalla-victoria">
+    <div id="cuadro-victoria">
+      <div class="victoria-encabezado">
+        <img src="imagenes/avad.png" alt="Alav" id="alav-victoria-avatar" />
+        <div class="victoria-texto-grupo">
+          <span class="alav-nombre">Alav</span>
+          <p class="alav-texto" id="alav-texto-victoria">
+            ¡Bien hecho! Has reunido todos los amuletos y la energía ha vuelto a fluir. Como recompensa por tu hazaña,
+            te revelaré un secreto que solo los verdaderos <strong>Alaryums</strong> conocemos...
+          </p>
+        </div>
+      </div>
+
+      <!-- IMAGEN DE LA PISTA / RECOMPENSA Y BOTÓN REINICIAR -->
+      <div class="contenedor-recompensa">
+        <img src="imagenes/foto.jpg" alt="Pista" id="imagen-pista" />
+        <button id="reiniciar-final" class="btn-estilo-juego">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sonido para el menú desplegable -->
+  <audio id="audio-menu" src="imagenes/menu.mp3" preload="auto"></audio>
+  <!-- Sonido de victoria -->
+  <audio id="audio-victoria" src="imagenes/victoria.mp3" preload="auto"></audio>
+
+</body>
+
+</html>

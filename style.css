@@ -1,0 +1,330 @@
+/* 1. CARGA DE LA FUENTE BEHIND THE NINETIES MEDIUM */
+@font-face {
+  font-family: 'Behind The Nineties';
+  src: url('/fuente/behind-the-nineties/Behind-The-Nineties-Md.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Behind The Nineties', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #151515;
+  user-select: none;
+}
+
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* ESTILO BASE PARA LOS RECUADROS DECORADOS */
+.recuadro-mistico {
+  color: #7C9FD7;
+  background: rgba(15, 15, 20, 0.8);
+  border: 2px solid #671A32;
+  outline: 1px solid #779de9;
+  outline-offset: 4px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(103, 26, 50, 0.8), inset 0 0 10px rgba(12, 11, 10, 0.2);
+}
+
+/* TÍTULO PRINCIPAL (ARRIBA AL MEDIO) */
+#titulo-juego {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 5px 25px;
+  text-align: center;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 60px;
+  color: #ffffff;
+  background: rgba(18, 12, 28, 0.55);
+  border: 3px solid transparent; 
+  border-image: linear-gradient(90deg, #671A32, #7C9FD7, hwb(60 100% 0%)) 1;
+  outline: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* RECUADRO TUTORIAL - ALAV */
+#tutorial-box {
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 480px;
+  padding: 12px 24px;
+  background: rgba(18, 12, 28, 0.7);
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+/* IMAGEN DE ALAV */
+#alav-avatar {
+  width: 140px;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  flex-shrink: 0;
+  padding: 4px;
+  background: rgba(18, 12, 28, 0.8);
+  border: 2px solid #00d2ff;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+}
+
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.alav-nombre {
+  font-size: 26px;
+  font-weight: 500;
+  color: #00d2ff;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.alav-texto {
+  font-size: 15px;
+  color: #e0e0e0;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: 1px;
+}
+
+.alav-texto strong {
+  color: #ffffff;
+}
+
+/* CONTADOR Y BOTÓN (ABAJO A LA DERECHA - ESTILO IDÉNTICO AL TUTORIAL) */
+#ui {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    z-index: 10;
+    padding: 18px 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    
+    /* Mismos bordes, fondo y vidrio del tutorial */
+    background: rgba(18, 12, 28, 0.7);
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Texto del contador */
+#ui p {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    color: #00d2ff;
+}
+
+#ui p span {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* FORZAR ESTILO NEÓN EN TODOS LOS BOTONES DE REINICIO */
+#reiniciar, 
+#reiniciar-final,
+button#reiniciar,
+.btn-estilo-juego {
+  background: rgba(15, 15, 20, 0.9) !important;
+  color: #00d2ff !important;
+  border: 2px solid #00d2ff !important;
+  padding: 12px 28px !important;
+  font-family: 'Behind The Nineties', 'Segoe UI', sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.4), inset 0 0 8px rgba(0, 210, 255, 0.2) !important;
+  transition: all 0.25s ease-in-out !important;
+}
+
+/* EFECTO AL PASAR EL MOUSE (HOVER) */
+#reiniciar:hover, 
+#reiniciar-final:hover,
+button#reiniciar:hover,
+.btn-estilo-juego:hover {
+  background: #00d2ff !important;
+  color: #0d0d12 !important;
+  box-shadow: 0 0 22px rgba(0, 210, 255, 0.9) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* PANTALLA COMPLETA DE VICTORIA CON OSCURECIMIENTO */
+#pantalla-victoria {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#pantalla-victoria.activa {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* RECUADRO ESTILO TUTORIAL DENTRO DE LA VICTORIA */
+#cuadro-victoria {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 580px;
+  padding: 24px 30px;
+  background: rgba(18, 12, 28, 0.9);
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, #671A32, #7C9FD7) 1;
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+}
+
+.victoria-encabezado {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#alav-victoria-avatar {
+  width: 130px;
+  height: auto;
+  max-height: 130px;
+  object-fit: contain;
+  flex-shrink: 0;
+  padding: 4px;
+  background: rgba(18, 12, 28, 0.8);
+  border: 2px solid #00d2ff;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.35);
+}
+
+.victoria-texto-grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* RECOMPENSA DE LA PISTA */
+.contenedor-recompensa {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#imagen-pista {
+  max-width: 280px;
+  height: auto;
+  border: 2px solid #7C9FD7;
+  box-shadow: 0 0 15px rgba(124, 159, 215, 0.4);
+  background: rgba(15, 15, 20, 0.8);
+  padding: 6px;
+}
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #1a1a24;
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid #33334d;
+}
+
+.modal-card input {
+  width: 80%;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #0d0d12;
+  color: #fff;
+  text-align: center;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.botones-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#btn-ingresar-codigo {
+  background: #6c5ce7;
+  color: #fff;
+}
+
+#btn-jugar-normal {
+  background: #444;
+  color: #ccc;
+}
+
+.error-text {
+  color: #ff7675;
+  font-size: 0.9rem;
+}
