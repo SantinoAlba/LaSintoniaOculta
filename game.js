@@ -527,6 +527,51 @@ function comprobarVictoria() {
 document.addEventListener("DOMContentLoaded", () => {
     actualizarContador();
 
+    // ------------------------------------------
+    // DESBLOQUEO GLOBAL DE AUDIO PARA MÓVILES (HTML + THREE.JS)
+    // ------------------------------------------
+    const desbloquearAudiosGlobal = () => {
+        // 1. Desbloquear contexto de WebAudio / Three.js (sonidoEncaje, etc.)
+        if (typeof listener !== 'undefined' && listener.context && listener.context.state === 'suspended') {
+            listener.context.resume();
+        }
+
+        // 2. Desbloquear elementos de audio HTML
+        const audios = [
+            document.getElementById("audio-victoria"),
+            document.getElementById("audio-menu")
+        ];
+
+        audios.forEach(audio => {
+            if (audio) {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }).catch(() => {});
+            }
+        });
+
+        // Remueve los eventos de la ventana y el canvas una vez activado
+        window.removeEventListener('touchstart', desbloquearAudiosGlobal);
+        window.removeEventListener('pointerdown', desbloquearAudiosGlobal);
+        
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+            canvas.removeEventListener('touchstart', desbloquearAudiosGlobal);
+            canvas.removeEventListener('pointerdown', desbloquearAudiosGlobal);
+        }
+    };
+
+    // Registrar eventos para el primer toque en pantalla o canvas
+    window.addEventListener('touchstart', desbloquearAudiosGlobal, { once: true });
+    window.addEventListener('pointerdown', desbloquearAudiosGlobal, { once: true });
+
+    const canvasElem = document.querySelector('canvas');
+    if (canvasElem) {
+        canvasElem.addEventListener('touchstart', desbloquearAudiosGlobal, { once: true });
+        canvasElem.addEventListener('pointerdown', desbloquearAudiosGlobal, { once: true });
+    }
+
     // Referencia al audio de victoria
     const audioVictoria = document.getElementById("audio-victoria");
 
