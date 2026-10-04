@@ -520,7 +520,7 @@ function comprobarVictoria() {
                 });
             }
 
-        }, 2000);
+        }, 1500);
     }
 }
 
