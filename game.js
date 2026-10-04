@@ -523,32 +523,9 @@ function comprobarVictoria() {
         }, 2000);
     }
 }
+
 document.addEventListener("DOMContentLoaded", () => {
     actualizarContador();
-
-    // ------------------------------------------
-    // DESBLOQUEO DE AUDIO PARA NAVEGADORES MÓVILES
-    // ------------------------------------------
-    const desbloquearAudios = () => {
-        const audioVictoria = document.getElementById("audio-victoria");
-        const audioMenu = document.getElementById("audio-menu");
-
-        [audioVictoria, audioMenu].forEach(audio => {
-            if (audio) {
-                audio.play().then(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }).catch(() => {});
-            }
-        });
-
-        // Remueve los eventos una vez desbloqueado el contexto de audio
-        window.removeEventListener('touchstart', desbloquearAudios);
-        window.removeEventListener('click', desbloquearAudios);
-    };
-
-    window.addEventListener('touchstart', desbloquearAudios, { once: true });
-    window.addEventListener('click', desbloquearAudios, { once: true });
 
     // Referencia al audio de victoria
     const audioVictoria = document.getElementById("audio-victoria");
