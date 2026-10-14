@@ -27,15 +27,14 @@ select {
   user-select: text !important;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  font-family: 'Behind The Nineties', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #151515;
-  user-select: none;
+html, body {
   width: 100vw;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden !important;
+  font-family: 'Behind The Nineties', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #151515;
 }
 
 canvas {
@@ -218,6 +217,7 @@ canvas {
   animation: moverBorde 8s linear infinite, pulsoBrillo 4s ease-in-out infinite;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  box-sizing: border-box;
 }
 
 #ui p {
@@ -475,24 +475,24 @@ button#reiniciar:hover,
 
 @media (max-width: 768px) {
   #titulo-juego {
-    font-size: 1.2rem;
-    top: 1vh;
-    padding: 4px 10px;
+    font-size: 1.1rem;
+    top: 0.8vh;
+    padding: 3px 8px;
     letter-spacing: 1px;
   }
 
   #tutorial-box {
-    top: 10vh;
+    top: 7.5vh;
     left: 50%;
     transform: translateX(-50%);
-    max-width: 80vw;
-    width: 80vw;
-    padding: 6px 10px;
+    max-width: 85vw;
+    width: 85vw;
+    padding: 5px 8px;
     box-sizing: border-box;
     cursor: pointer;
     overflow: hidden;
     transition: max-height 0.35s ease, padding 0.35s ease;
-    max-height: 220px;
+    max-height: 200px;
     display: flex;
     flex-direction: column;
   }
@@ -537,13 +537,13 @@ button#reiniciar:hover,
   }
 
   #ui {
-    bottom: 2vh;
+    bottom: 1.5vh;
     right: 50%;
     transform: translateX(50%);
     width: 85vw;
     max-width: 320px;
-    padding: 10px 16px;
-    gap: 8px;
+    padding: 8px 12px;
+    gap: 6px;
     box-sizing: border-box;
   }
 
