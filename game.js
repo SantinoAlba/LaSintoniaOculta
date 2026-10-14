@@ -4,8 +4,10 @@
 // Inicializa el entorno gráfico 3D, la cámara en perspectiva y el motor de renderizado con soporte transparente
 const scene = new THREE.Scene();
 
+const esDispositivoMobile = window.innerWidth <= 768;
+
 const camera = new THREE.PerspectiveCamera(
-    45,
+    esDispositivoMobile ? 50 : 45,
     window.innerWidth / window.innerHeight,
     0.1,
     100
@@ -23,8 +25,6 @@ document.body.appendChild(renderer.domElement);
 // CONFIGURACIÓN RESPONSIVE Y EVENTO RESIZE
 // ==========================================
 // Detecta si es un dispositivo móvil y actualiza las proporciones de la cámara y el tamaño al cambiar la ventana
-const esDispositivoMobile = window.innerWidth <= 768;
-
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -140,7 +140,7 @@ function nuevaSemilla() {
 // ==========================================
 // Configura escalas, factores de proporción para laptops/PCs y coordenadas iniciales de las piezas y drop zones
 let zonasDrop = [];
-let escalaPiezas = esDispositivoMobile ? 0.48 : 1.0;
+let escalaPiezas = esDispositivoMobile ? 0.42 : 1.0;
 
 const anchoVentana = window.innerWidth;
 const factorEscalaPC = Math.min(Math.max(anchoVentana / 1440, 0.7), 1.1);
@@ -160,10 +160,10 @@ const rutasPnsPiezas = [
 
 const posicionesBase = esDispositivoMobile
     ? [
-        [-1.1, 1.8], [1.1, 1.8],
-        [-1.1, 1.1], [1.1, 1.1],
-        [-1.1, -1.1], [1.1, -1.1],
-        [-1.1, -1.8], [1.1, -1.8]
+        [-1.1, 1.3], [1.1, 1.3],
+        [-1.1, 0.7], [1.1, 0.7],
+        [-1.1, -0.7], [1.1, -0.7],
+        [-1.1, -1.3], [1.1, -1.3]
     ]
     : [
         [-4.5 * factorEscalaPC, 2.5],
@@ -187,8 +187,8 @@ generarPosiciones(null);
 
 zonasDrop = esDispositivoMobile
     ? [
-        { id: "zona-grupo-1", x: -0.85, y: 0, grupo: 1 },  // Zona izquierda
-        { id: "zona-grupo-2", x: 0.85, y: 0, grupo: 2 }   // Zona derecha
+        { id: "zona-grupo-1", x: 0, y: 0.35, grupo: 1 },  // Zona superior del medio
+        { id: "zona-grupo-2", x: 0, y: -0.35, grupo: 2 } // Zona inferior del medio
       ]
     : [
         { id: "zona-grupo-1", x: -1.3, y: 0, grupo: 1 },
