@@ -136,14 +136,10 @@ function nuevaSemilla() {
 }
 
 // ==========================================
-// POSICIONES Y ZONAS (OPTIMIZADAS PARA MÓVIL)
+// POSICIONES Y ZONAS INDEPENDIENTES POR DISPOSITIVO
 // ==========================================
-// Configura escalas, factores de proporción para laptops/PCs y coordenadas iniciales de las piezas y drop zones
 let zonasDrop = [];
 let escalaPiezas = esDispositivoMobile ? 0.42 : 1.0;
-
-const anchoVentana = window.innerWidth;
-const factorEscalaPC = Math.min(Math.max(anchoVentana / 1440, 0.7), 1.1);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -158,32 +154,28 @@ const rutasPnsPiezas = [
     'imagenes/pieza8.png'
 ];
 
-const posicionesBase = esDispositivoMobile
-    ? [
-        [-1.1, 1.3], [1.1, 1.3],
-        [-1.1, 0.7], [1.1, 0.7],
-        [-1.1, -0.7], [1.1, -0.7],
-        [-1.1, -1.3], [1.1, -1.3]
-    ]
-    : [
-        [-4.5 * factorEscalaPC, 2.5],
-        [-6.0 * factorEscalaPC, 0.8],
-        [-4.5 * factorEscalaPC, -0.9],
-        [-7.5 * factorEscalaPC, -2.6],
-        [3.5 * factorEscalaPC, 2.5],
-        [6.0 * factorEscalaPC, 0.8],
-        [4.5 * factorEscalaPC, -0.9],
-        [7.5 * factorEscalaPC, -2.6]
-    ];
+function obtenerPosicionesBaseActuales() {
+    const anchoVentana = window.innerWidth;
+    const factorEscalaPC = Math.min(Math.max(anchoVentana / 1440, 0.7), 1.1);
 
-let posicionesActuales = [];
-
-function generarPosiciones(semilla) {
-    const rng = (semilla === null || semilla === undefined) ? Math.random : mulberry32(semilla);
-    posicionesActuales = mezclarArreglo(posicionesBase.map(p => [...p]), rng);
+    return esDispositivoMobile
+        ? [
+            [-1.1, 1.3], [1.1, 1.3],
+            [-1.1, 0.7], [1.1, 0.7],
+            [-1.1, -0.7], [1.1, -0.7],
+            [-1.1, -1.3], [1.1, -1.3]
+          ]
+        : [
+            [-4.5 * factorEscalaPC, 2.5],
+            [-6.0 * factorEscalaPC, 0.8],
+            [-4.5 * factorEscalaPC, -0.9],
+            [-7.5 * factorEscalaPC, -2.6],
+            [3.5 * factorEscalaPC, 2.5],
+            [6.0 * factorEscalaPC, 0.8],
+            [4.5 * factorEscalaPC, -0.9],
+            [7.5 * factorEscalaPC, -2.6]
+          ];
 }
-
-generarPosiciones(null);
 
 zonasDrop = esDispositivoMobile
     ? [
@@ -194,6 +186,16 @@ zonasDrop = esDispositivoMobile
         { id: "zona-grupo-1", x: -1.3, y: 0, grupo: 1 },
         { id: "zona-grupo-2", x: 1.3, y: 0, grupo: 2 }
       ];
+
+let posicionesActuales = [];
+
+function generarPosiciones(semilla) {
+    const rng = (semilla === null || semilla === undefined) ? Math.random : mulberry32(semilla);
+    const baseActual = obtenerPosicionesBaseActuales();
+    posicionesActuales = mezclarArreglo(baseActual.map(p => [...p]), rng);
+}
+
+generarPosiciones(null);
 
 const piezas = [];
 const aurasZonasCentrales = [];
@@ -210,7 +212,6 @@ zonasDrop.forEach((zona, index) => {
 // ==========================================
 // ESTADO MULTIJUGADOR (PEERJS)
 // ==========================================
-// Variables y funciones para gestionar salas, roles de grupo, permisos de piezas y sincronización de red
 const PREFIJO_SALA = "sintonia-oculta-";
 const ALFABETO_SALA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -240,7 +241,6 @@ function actualizarRolVisual() {
 // ==========================================
 // CARGA Y CREACIÓN DE LAS PIEZAS 3D
 // ==========================================
-// Carga las texturas PNG de cada pieza, genera sus planos 3D y configura sus metadatos
 rutasPnsPiezas.forEach((ruta, i) => {
     textureLoader.load(ruta, function (texture) {
         texture.generateMipmaps = true;
@@ -293,8 +293,16 @@ rutasPnsPiezas.forEach((ruta, i) => {
 });
 
 function aplicarPosicionesAPiezas() {
+    const baseActual = obtenerPosicionesBaseActuales();
     piezas.forEach(p => {
-        p.userData.inicial = [...posicionesActuales[p.userData.numero]];
+        p.userData.inicial = [...baseActual[p.userData.numero]];
+        
+        const grupoAsignado = p.userData.grupo;
+        const zonaDestino = zonasDrop.find(z => z.grupo === grupoAsignado);
+        if (zonaDestino) {
+            p.userData.destino = [zonaDestino.x, zonaDestino.y];
+        }
+
         if (!p.userData.colocada) {
             p.position.x = p.userData.inicial[0];
             p.position.y = p.userData.inicial[1];
@@ -305,7 +313,6 @@ function aplicarPosicionesAPiezas() {
 // ==========================================
 // AMULETOS COMPLETADOS (RECOMPENSAS DE ZONA)
 // ==========================================
-// Carga y prepara las imágenes que se muestran al completar cada grupo de piezas
 const rutasAmuletosCompletados = {
     1: 'imagenes/FragCompleto.png',
     2: 'imagenes/Fragmentado.png'
@@ -351,7 +358,6 @@ Object.keys(rutasAmuletosCompletados).forEach(grupoId => {
 // ==========================================
 // INTERACCIONES Y RAYCASTER (CLIC Y ARRASTRE)
 // ==========================================
-// Controla el evento de puntero (mousedown/touchstart, move y up) para seleccionar, mover y soltar piezas 3D
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let piezaSeleccionada = null;
@@ -443,7 +449,6 @@ renderer.domElement.addEventListener("pointercancel", soltarPieza);
 // ==========================================
 // CONTADOR, COMPROBACIÓN Y VICTORIA
 // ==========================================
-// Gestiona la lógica de encaje, conteo de amuletos armados, validación de victoria y pantalla final
 function actualizarContador() {
     const grupo1Completado = piezas.filter(p => p.userData.grupo === 1).every(p => p.userData.colocada);
     const grupo2Completado = piezas.filter(p => p.userData.grupo === 2).every(p => p.userData.colocada);
@@ -626,7 +631,6 @@ function reiniciarJuego(semillaRemota) {
 // ==========================================
 // COMUNICACIÓN COOPERATIVA (PEERJS Y MENSAJES)
 // ==========================================
-// Controla el envío de paquetes de red, mapeo de coordenadas relativas y eventos de conexión de los jugadores
 function enviar(mensaje) {
     if (conexion && conexion.open) {
         conexion.send(mensaje);
@@ -707,9 +711,9 @@ function procesarMensaje(msg) {
         case 'init': {
             if (esAnfitrion || !Number.isInteger(msg.seed)) return;
             clearTimeout(temporizadorUnion);
+            miGrupo = 2;
             generarPosiciones(msg.seed);
             aplicarPosicionesAPiezas();
-            miGrupo = 2;
             partidaCooperativaLista();
             break;
         }
@@ -1015,7 +1019,6 @@ function copiarEnlaceSala() {
 // ==========================================
 // EVENTOS DE LA INTERFAZ HTML
 // ==========================================
-// Conecta los botones y formularios del DOM con las funciones lógicas del juego
 document.addEventListener("DOMContentLoaded", () => {
     actualizarContador();
 
@@ -1069,7 +1072,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==========================================
 // BUCLE PRINCIPAL DE ANIMACIÓN (RENDER LOOP)
 // ==========================================
-// Ejecuta fotograma a fotograma las animaciones de las auras, la flotación de piezas y el renderizado 3D
 const clock = new THREE.Clock();
 
 function animar() {
@@ -1129,7 +1131,6 @@ animar();
 // ==========================================
 // TUTORIAL INTERACTIVO DE ALAV
 // ==========================================
-// Controla la apertura y colapso del cuadro de diálogo de Alav al hacer clic
 const tutorialBox = document.getElementById('tutorial-box');
 const audioMenu = document.getElementById('audio-menu');
 
