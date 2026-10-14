@@ -136,11 +136,11 @@ function nuevaSemilla() {
 }
 
 // ==========================================
-// POSICIONES Y ZONAS (ADAPTADAS PARA MÓVIL Y PC)
+// POSICIONES Y ZONAS (OPTIMIZADAS PARA MÓVIL)
 // ==========================================
 // Configura escalas, factores de proporción para laptops/PCs y coordenadas iniciales de las piezas y drop zones
 let zonasDrop = [];
-let escalaPiezas = esDispositivoMobile ? 0.55 : 1.0;
+let escalaPiezas = esDispositivoMobile ? 0.48 : 1.0;
 
 const anchoVentana = window.innerWidth;
 const factorEscalaPC = Math.min(Math.max(anchoVentana / 1440, 0.7), 1.1);
@@ -160,10 +160,10 @@ const rutasPnsPiezas = [
 
 const posicionesBase = esDispositivoMobile
     ? [
-        [-1.0, 2.5], [1.0, 2.5],
-        [-1.0, 1.6], [1.0, 1.6],
-        [-1.0, -1.6], [1.0, -1.6],
-        [-1.0, -2.5], [1.0, -2.5]
+        [-1.1, 1.8], [1.1, 1.8],
+        [-1.1, 1.1], [1.1, 1.1],
+        [-1.1, -1.1], [1.1, -1.1],
+        [-1.1, -1.8], [1.1, -1.8]
     ]
     : [
         [-4.5 * factorEscalaPC, 2.5],
@@ -187,8 +187,8 @@ generarPosiciones(null);
 
 zonasDrop = esDispositivoMobile
     ? [
-        { id: "zona-grupo-1", x: 0, y: 0.8, grupo: 1 },  // Zona superior centrada
-        { id: "zona-grupo-2", x: 0, y: -0.8, grupo: 2 } // Zona inferior centrada
+        { id: "zona-grupo-1", x: -0.85, y: 0, grupo: 1 },  // Zona izquierda
+        { id: "zona-grupo-2", x: 0.85, y: 0, grupo: 2 }   // Zona derecha
       ]
     : [
         { id: "zona-grupo-1", x: -1.3, y: 0, grupo: 1 },
@@ -542,8 +542,6 @@ function comprobarVictoria() {
     }
 }
 
-
-
 function reproducirIntroYComenzar(callbackContinuar) {
     const overlayIntro = document.getElementById("intro-video-overlay");
     const videoIntro = document.getElementById("video-intro");
@@ -553,7 +551,6 @@ function reproducirIntroYComenzar(callbackContinuar) {
         return;
     }
 
-    // Mostramos la capa del video
     overlayIntro.style.display = "flex";
     setTimeout(() => overlayIntro.classList.add("activo"), 50);
 
@@ -569,18 +566,11 @@ function reproducirIntroYComenzar(callbackContinuar) {
             overlayIntro.style.display = "none";
             videoIntro.pause();
             if (callbackContinuar) callbackContinuar();
-        }, 800); // Tiempo de desvanecimiento
+        }, 800);
     }
 
-    // Cuando termina el video normal, arranca el juego
     videoIntro.onended = finalizarIntro;
 }
-
-
-
-
-
-
 
 function reiniciarJuego(semillaRemota) {
     const vieneDelCompanero = (typeof semillaRemota === "number");
@@ -849,7 +839,6 @@ function cancelarSala() {
     mostrarCodigoSala("");
     mostrarMensajeSala("");
 
-    // Al cancelar la sala y jugar en solitario, lanzamos la intro también:
     reproducirIntroYComenzar(() => {
         const modalSala = document.getElementById("modal-sala");
         if (modalSala) modalSala.style.display = "none";
