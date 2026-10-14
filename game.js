@@ -160,10 +160,10 @@ const rutasPnsPiezas = [
 
 const posicionesBase = esDispositivoMobile
     ? [
-        [-1.1, 3.2], [1.1, 3.2],
-        [-1.1, 2.2], [1.1, 2.2],
-        [-1.1, -2.2], [1.1, -2.2],
-        [-1.1, -3.2], [1.1, -3.2]
+        [-1.0, 2.5], [1.0, 2.5],
+        [-1.0, 1.6], [1.0, 1.6],
+        [-1.0, -1.6], [1.0, -1.6],
+        [-1.0, -2.5], [1.0, -2.5]
     ]
     : [
         [-4.5 * factorEscalaPC, 2.5],
@@ -187,8 +187,8 @@ generarPosiciones(null);
 
 zonasDrop = esDispositivoMobile
     ? [
-        { id: "zona-grupo-1", x: 0, y: 0.9, grupo: 1 },
-        { id: "zona-grupo-2", x: 0, y: -0.9, grupo: 2 }
+        { id: "zona-grupo-1", x: 0, y: 0.8, grupo: 1 },  // Zona superior centrada
+        { id: "zona-grupo-2", x: 0, y: -0.8, grupo: 2 } // Zona inferior centrada
       ]
     : [
         { id: "zona-grupo-1", x: -1.3, y: 0, grupo: 1 },
@@ -848,7 +848,7 @@ function cancelarSala() {
     aplicarPosicionesAPiezas();
     mostrarCodigoSala("");
     mostrarMensajeSala("");
-    
+
     // Al cancelar la sala y jugar en solitario, lanzamos la intro también:
     reproducirIntroYComenzar(() => {
         const modalSala = document.getElementById("modal-sala");
